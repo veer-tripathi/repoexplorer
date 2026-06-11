@@ -1,0 +1,11 @@
+build/
+out/
+reports/
+*.o
+*.obj
+*.exe
+report.txt
+report.md
+report.json
+*.mmd
+*.dot
