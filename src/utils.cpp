@@ -44,14 +44,47 @@ bool startsWith(std::string_view s, std::string_view prefix) {
 }
 
 std::string humanSize(std::uintmax_t bytes) {
-    static const std::array<const char*, 5> u{"B", "KB", "MB", "GB", "TB"};
-    double v = double(bytes);
-    std::size_t i = 0;
-    while (v >= 1024.0 && i + 1 < u.size()) { v /= 1024.0; ++i; }
-    char buf[64];
-    if (i == 0) std::snprintf(buf, sizeof buf, "%llu %s", (unsigned long long)bytes, u[i]);
-    else        std::snprintf(buf, sizeof buf, "%.1f %s", v, u[i]);
-    return buf;
+    // Available units
+    static const std::array<const char*, 5> units = {
+        "B", "KB", "MB", "GB", "TB"
+    };
+
+    // Start with the size in bytes
+    double size = static_cast<double>(bytes);
+    std::size_t unitIndex = 0;
+
+    // Keep converting to the next larger unit
+    // until the value becomes less than 1024
+    while (size >= 1024.0 && unitIndex + 1 < units.size()) {
+        size /= 1024.0;
+        ++unitIndex;
+    }
+
+    char buffer[64];
+
+    if (unitIndex == 0) {
+        // For bytes, show an integer value
+        // Example: "512 B"
+        std::snprintf(
+            buffer,
+            sizeof(buffer),
+            "%llu %s",
+            static_cast<unsigned long long>(bytes),
+            units[unitIndex]
+        );
+    } else {
+        // For KB, MB, GB, etc., show one decimal place
+        // Example: "1.5 KB", "23.7 MB"
+        std::snprintf(
+            buffer,
+            sizeof(buffer),
+            "%.1f %s",
+            size,
+            units[unitIndex]
+        );
+    }
+
+    return std::string(buffer);
 }
 
 static bool g_color = true;
